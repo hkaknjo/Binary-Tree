@@ -1,128 +1,90 @@
-#include <iostream>
-#include <stdio.h>
+#include<iostream>
 
-using namespace std; 
+using namespace std;
 
-class Node {
-public:
-	Node* lchild;
-	int data;
-	Node* rchild;
-	 
-};
-
-class Queue {
-private: 
-	int size;
-	int front;
-	int rear;
-	Node **Q;
-public: 
-	Queue() {
-		front = rear = -1;
-		size = 10;
-		Q = new  Node*[size];
-	}
-	Queue(int size) {
-		this->size = size;
-		front = rear = -1;
-		Q = new  Node*[this->size];
-
-	}
-	void enqueue(Node* x);
-	Node* dequeue();
-	void Display();
-	int isEmpty() {
-		return rear == front;
-	}
-};
-Node* Queue::dequeue() {
-	Node* x = NULL;
-	if (rear == front) {
-		cout << "Stack is empty "  ;
-	}
-	else {
-		x = Q[front + 1];
-		front++;
-	}
-	return x;
-
-}
-void Queue::enqueue(Node* x) {
-	if (rear == size-1) {
-		cout << "Queue is empty ";
-
-	}
-	else {
-
-		rear++;
-		Q[rear] = x;
-
+void set(int* A, int n) {
+	for (int i = 0; i < n; i++) {
+		cout << "Input " << i + 1 << ". element of an array: "; cin >> A[i];
 	}
 }
-
-
-class Tree {
-public:
-	Node* root = NULL;
-	Tree() {
-		root = NULL;
-
-	}
-	void CreateTree();
-	void Preorder(Node* x);
-
-
-};
-
-void Tree::CreateTree() {
-	Node* p, * t = NULL;
-	int x;
-	Queue q(100);
-	cout << "Unesite root vrijednost: ";
-	cin >> x;
-	root = new Node;
-	root->data = x;
-	root->lchild = root->rchild = NULL;
-	q.enqueue(root);
-	while (!q.isEmpty()) {
-		p = q.dequeue();
-		cout << "Unesite lijevo dijete od " << p->data;
-		cin >> x;
-		if (x != -1) {
-			t = new Node;
-			t->data = x;
-			t->lchild = t->rchild = NULL;
-			p->lchild = t;
-			q.enqueue(t);
-		}
-		cout << "Unesite desno dijete od " << p->data;
-		cin >> x;
-		if (x != -1) {
-			t = new Node;
-			t->data = x;
-			t->lchild = t->rchild = NULL;
-			p->rchild = t;
-			q.enqueue(t);
+void print(int* A, int n) {
+	cout << "Array elements are: ";
+	for (int i = 0; i < n; i++)
+		cout << A[i] << " ";
+	cout << endl;
+}
+int getMax(int* A, int n) {
+	int max = A[0];
+	for (int i = 0; i < n; i++) {
+		if (A[i] > max) {
+			max = A[i];
 		}
 	}
-
-
+	return max;
 }
 
-void Tree::Preorder(Node* x) {
-	if (x) {
-		cout << x->data;
-		Preorder(x->lchild);
-		Preorder(x->rchild);
-	}
-	}
-	
+struct node {
+	int key;
+	node* next;
+};
 
+void radix_sort(int* A, int n) {
+	int max = getMax(A, n);
+
+	for (int i = 1; max / i > 0; i *= 10) {
+		//Making 10 bins and setting them to NULL
+		node** bin = new node * [10];
+		node** head = new node * [10];
+		node** tail = new node * [10];
+		for (int j = 0; j < 10; j++) {
+			bin[j] = nullptr;
+			head[j] = nullptr;
+			tail[j] = nullptr;
+		}
+		//Inserting elements based on their modulo
+		for (int j = 0; j < n; j++) {
+			node* t = new node;
+			t->key = A[j];
+			t->next = nullptr;
+			if (head[(A[j] / i) % 10] == nullptr) {
+				bin[(A[j] / i) % 10] = t;
+				head[(A[j] / i) % 10] = bin[(A[j] / i) % 10];
+				tail[(A[j] / i) % 10] = bin[(A[j] / i) % 10];
+			}
+			else {
+				tail[(A[j] / i) % 10]->next = t;
+				tail[(A[j] / i) % 10] = t;
+			}
+		}
+
+		int k = 0;
+		for (int j = 0; j < 10; j++) {
+			while (bin[j] != nullptr) {
+				A[k] = bin[j]->key;
+				k++;
+				bin[j] = bin[j]->next;
+			}
+			delete[]bin[j]; bin[j] = nullptr;
+
+		}
+		delete[]bin; bin = nullptr;
+		delete[]head; head = nullptr;
+		delete[]tail; tail = nullptr;
+
+	}
+}
 
 int main() {
-	Tree t;
-	t.CreateTree();
-	t.Preorder(t.root);
 
+
+	int n;
+	cout << "Input array size: "; cin >> n;
+	int* A = new int[n];
+	set(A, n);
+	radix_sort(A, n);
+	print(A, n);
+
+	delete[]A; A = nullptr;
+	system("pause");
+	return 0;
 }
